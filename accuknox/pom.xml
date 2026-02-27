@@ -18,13 +18,13 @@
   <version>1.0.0</version>
   <packaging>hpi</packaging>
 
-  <name>AccuKnox Security Scanner</name>
+  <name>AccuKnox ASPM Scanner</name>
   <description>
     Unified AccuKnox ASPM security scanning for Jenkins Pipelines —
-    SAST, DAST, Container, IaC and Secret scanning in a single plugin.
+    SAST, DAST, Container, IaC and Secret scanning through plugin.
   </description>
 
-  <!-- ✅ Correct GitHub Repo URL -->
+  <!-- GitHub Repo -->
   <url>https://github.com/IamShubhamS/jenkins_plugins</url>
 
   <licenses>
@@ -34,7 +34,6 @@
     </license>
   </licenses>
 
-  <!-- Optional but Professional -->
   <developers>
     <developer>
       <id>IamShubhamS</id>
@@ -83,6 +82,12 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials-binding</artifactId>
       <version>604.vb_64480b_c56ca_</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>structs</artifactId>
+      <version>324.va_f5d6774f3a_d</version>
     </dependency>
 
     <!-- Test -->

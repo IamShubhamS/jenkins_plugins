@@ -1,0 +1,82 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build (no tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build (skip tests)
+        run: mvn -B clean package -DskipTests --no-transfer-progress
+
+      - name: Upload HPI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: accuknox-security-scanner-hpi
+          path: target/*.hpi
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build release artifact (skip tests)
+        run: mvn -B clean package -DskipTests --no-transfer-progress
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/*.hpi
+          generate_release_notes: true
+          body: |
+            ## AccuKnox Security Scanner ${{ github.ref_name }}
+
+            ### Scan Steps Included
+
+            | Pipeline Step | Scan Type | Extra Params |
+            |---|---|---|
+            | `accuknoxSastScan` | SAST | — |
+            | `accuknoxDastScan` | DAST | `targetUrl` |
+            | `accuknoxContainerScan` | Container | `imageName` |
+            | `accuknoxIacScan` | IaC | `iacType` |
+            | `accuknoxSecretScan` | Secret | `scanHistory` |
+
+            ### Installation
+            1. Download the `.hpi` asset below
+            2. Jenkins → **Manage Jenkins → Plugins → Advanced → Deploy Plugin**
+            3. Upload the `.hpi` and restart Jenkins
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
